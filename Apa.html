@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>devoloper blade of kibiu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #071226;
+    --card: rgba(255,255,255,0.03);
+    --muted: #9aa4b2;
+    --accent1: #00e5ff;
+    --accent2: #9b6bff;
+    --glass: rgba(255,255,255,0.03);
+    --btn-grad: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    --round: 14px;
+    --gap: 12px;
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue";
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:var(--font-sans);
+    background:
+      radial-gradient(700px 300px at 10% 20%, rgba(0,229,255,0.06), transparent),
+      radial-gradient(700px 300px at 90% 80%, rgba(155,107,255,0.06), transparent),
+      var(--bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+    color:#e6eef6;
+  }
+
+  .calculator {
+    width: 100%;
+    max-width:460px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow:
+      0 10px 30px rgba(2,6,23,0.8),
+      0 0 40px rgba(0,229,255,0.03) inset;
+    padding: 22px;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .brand{ display:flex; gap:12px; align-items:center; }
+  .logo{
+    width:52px;height:52px;border-radius:12px;
+    background: linear-gradient(135deg,var(--accent1),var(--accent2));
+    box-shadow:
+      0 6px 22px rgba(155,107,255,0.12),
+      0 0 22px rgba(0,229,255,0.08);
+    display:flex;align-items:center;justify-content:center;font-weight:800;color:#031025;
+    font-size:20px;
+  }
+  .title small{color:var(--muted);font-size:12px}
+
+  .display {
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom:16px;
+    min-height:96px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-end;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* subtle grid dots behind output for style */
+  .display::before{
+    content:"";
+    position:absolute; left:0; right:0; top:0; bottom:0;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size:14px 14px;
+    opacity:0.06;
+    pointer-events:none;
+  }
+
+  .history{
+    font-size:13px;color:var(--muted);opacity:0.95;margin-bottom:6px;
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .output{
+    font-size:40px;font-weight:700;
+    letter-spacing:0.6px;
+    word-break:break-all;
+    text-shadow: 0 6px 18px rgba(155,107,255,0.08);
+  }
+  .small-dot { opacity:0.6; font-weight:600; margin-left:6px; }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--gap);
+  }
+
+  button.key{
+    padding:18px;
+    border-radius:12px;
+    border: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: 0 10px 24px rgba(2,6,23,0.6);
+    font-size:18px;
+    cursor:pointer;
+    transition: transform .06s ease, box-shadow .12s ease, background .12s ease;
+    user-select:none;
+    color: #e6eef6;
+    position:relative;
+    overflow:visible;
+  }
+  button.key:active{ transform: translateY(2px); }
+  button.key:hover{ box-shadow: 0 14px 30px rgba(2,6,23,0.65); }
+
+  /* neon accents for operator keys */
+  button.op{
+    background: linear-gradient(135deg, rgba(11,22,40,0.9), rgba(20,30,50,0.9));
+    box-shadow:
+      0 8px 30px rgba(0,229,255,0.06),
+      0 0 12px rgba(155,107,255,0.04) inset;
+    font-weight:700;
+  }
+  button.op::after{
+    content:"";
+    position:absolute; left:6px; right:6px; bottom:6px; height:6px;
+    background: linear-gradient(90deg, rgba(0,229,255,0.06), rgba(155,107,255,0.06));
+    border-radius:8px; opacity:0.8;
+  }
+
+  button.big{ grid-column: span 2; }
+
+  .utility{
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.0));
+    color:var(--muted);
+    font-weight:600;
+  }
+
+  .footer{
+    margin-top:14px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;
+  }
+
+  /* responsive tweaks */
+  @media (max-width:480px){
+    .output{ font-size:32px }
+    button.key{ padding:14px; font-size:16px }
+    .calculator{ padding:14px; border-radius:14px }
+    .logo{ width:44px;height:44px;font-size:18px; }
+  }
+</style>
+</head>
+<body>
+  <main class="calculator" role="application" aria-label="devoloper blade of kibou">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">G</div>
+        <div class="title">
+          <strong>Kalkulator</strong>
+          <small>blade of kibiu</small>
+        </div>
+      </div>
+      <div>
+        <button id="themeToggle" class="utility" aria-pressed="false" title="Toggle theme"></button>
+      </div>
+    </div>
+
+    <section class="display" aria-live="polite">
+      <div id="history" class="history" aria-hidden="true"></div>
+      <div id="output" class="output" role="textbox" aria-label="Hasil kalkulasi">0<span id="dot" class="small-dot"></span></div>
+    </section>
+
+    <section class="grid" role="group" aria-label="Tombol kalkulator">
+      <!-- Row 1 -->
+      <button class="key utility" data-action="clear" aria-label="Clear (C)">C</button>
+      <button class="key utility" data-action="neg" aria-label="Negasi">±</button>
+      <button class="key utility" data-action="percent" aria-label="Persen">%</button>
+      <button class="key op" data-op="/" aria-label="Bagi">÷</button>
+
+      <!-- Row 2 -->
+      <button class="key" data-num="7">7</button>
+      <button class="key" data-num="8">8</button>
+      <button class="key" data-num="9">9</button>
+      <button class="key op" data-op="*" aria-label="Kali">×</button>
+
+      <!-- Row 3 -->
+      <button class="key" data-num="4">4</button>
+      <button class="key" data-num="5">5</button>
+      <button class="key" data-num="6">6</button>
+      <button class="key op" data-op="-" aria-label="Kurang">−</button>
+
+      <!-- Row 4 -->
+      <button class="key" data-num="1">1</button>
+      <button class="key" data-num="2">2</button>
+      <button class="key" data-num="3">3</button>
+      <button class="key op" data-op="+" aria-label="Tambah">+</button>
+
+      <!-- Row 5 -->
+      <button class="key big" data-num="0" aria-label="Nol">0</button>
+      <button class="key" data-num=".">.</button>
+      <button class="key op" data-action="equals" aria-label="Sama dengan">=</button>
+    </section>
+
+    <div class="footer">
+      <span>blade of kibou</span>
+      <span>masih tahap uji coba</span>
+    </div>
+  </main>
+
+<script>
+/*
+  Kalkulator stateful (immediate execution) + tampilan dengan pemisah ribuan (titik)
+  - operand: current number being input (string)
+  - value: stored result (number)
+  - operator: pending operator ('+', '-', '*', '/')
+*/
+
+// Utility: round to avoid floating artifacts (12 significant digits)
+function safeRound(n){
+  if (!isFinite(n)) return n;
+  return Math.round((n + Number.EPSILON) * 1e12) / 1e12;
+}
+
+// Format numeric value (Number) → string with dot thousands and trim trailing zeros on decimals
+function formatNumberForDisplay(n){
+  if (!isFinite(n)) return 'Error';
+  n = safeRound(n);
+  const parts = String(n).split('.');
+  let intPart = parts[0];
+  let decPart = parts[1] ?? null;
+
+  // Handle negative sign
+  const isNegative = intPart.startsWith('-');
+  if (isNegative) intPart = intPart.slice(1);
+
+  // Insert dots every 3 digits
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  let result = (isNegative ? '-' : '') + intPart;
+  if (decPart !== null && decPart !== '0') {
+    // remove trailing zeros
+    decPart = decPart.replace(/0+$/,'');
+    if (decPart.length > 0) result += '.' + decPart;
+  }
+  return result;
+}
+
+// Format operand string (which may be partial input like '0.' or '1234.5') without changing internal value
+function formatOperandStringForDisplay(opStr){
+  if (opStr === '') return '0';
+  // handle leading '-' separately
+  let neg = false;
+  if (opStr.startsWith('-')) { neg = true; opStr = opStr.slice(1); }
+
+  // if contains '.', split int/dec preserving trailing dot input like '1234.'
+  const hasDot = opStr.includes('.');
+  const [intPartRaw, decPartRaw] = opStr.split('.');
+  let intPart = intPartRaw || '0';
+  // remove leading zeros except when it is "0" or starts with "0."
+  if (intPart.length > 1) {
+    intPart = intPart.replace(/^0+(?=\d)/, '');
+    if (intPart === '') intPart = '0';
+  }
+
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  let display = (neg ? '-' : '') + intPart;
+  if (hasDot) {
+    // preserve whatever user typed after dot (even if empty)
+    display += '.' + (decPartRaw ?? '');
+  }
+  return display;
+}
+
+/* --- Calculator logic --- */
+(function(){
+  const outputEl = document.getElementById('output');
+  const historyEl = document.getElementById('history');
+  const keys = document.querySelectorAll('button.key');
+  const themeToggle = document.getElementById('themeToggle');
+
+  let state = {
+    value: 0,         // numeric accumulator
+    operator: null,   // pending operator
+    operand: '0',     // current input as string
+    waitingForOperand: false,
+    lastWasEquals: false
+  };
+
+  function refreshDisplay(){
+    // Display operand (with thousand separators)
+    outputEl.textContent = formatOperandStringForDisplay(state.operand);
+    // Show a subtle small dot if operand ends with '.' (so user sees they typed decimal point)
+    // (not strictly necessary—already preserved above)
+    historyEl.textContent = state.operator ? `${formatNumberForDisplay(state.value)} ${state.operator}` : '';
+  }
+
+  function inputDigit(d){
+    if (state.lastWasEquals) {
+      // start new after equals
+      state = { value:0, operator:null, operand:'0', waitingForOperand:false, lastWasEquals:false };
+    }
+    if (state.waitingForOperand) {
+      // start new operand
+      state.operand = (d === '.') ? '0.' : d;
+      state.waitingForOperand = false;
+    } else {
+      if (d === '.' && state.operand.includes('.')) return; // ignore extra dot
+      if (state.operand === '0' && d !== '.') state.operand = d;
+      else state.operand += d;
+    }
+    refreshDisplay();
+  }
+
+  function handleOperator(nextOp){
+    const inputValue = parseFloat(state.operand.replace(',', '.')) || 0;
+
+    if (state.operator && !state.waitingForOperand) {
+      // compute previous operator
+      let result = operate(state.value, inputValue, state.operator);
+      state.value = result;
+    } else {
+      state.value = inputValue;
+    }
+
+    state.operator = nextOp;
+    state.waitingForOperand = true;
+    state.lastWasEquals = false;
+    refreshDisplay();
+  }
+
+  function operate(a,b,op){
+    a = Number(a); b = Number(b);
+    switch(op){
+      case '+': return a + b;
+      case '-': return a - b;
+      case '*': return a * b;
+      case '/': return b === 0 ? NaN : a / b;
+    }
+    return b;
+  }
+
+  function clearAll(){
+    state = { value:0, operator:null, operand:'0', waitingForOperand:false, lastWasEquals:false };
+    refreshDisplay();
+  }
+
+  function doEquals(){
+    const inputValue = parseFloat(state.operand) || 0;
+    if (state.operator) {
+      const result = operate(state.value, inputValue, state.operator);
+      // store formatted result as operand string (but keep internal numeric)
+      // use safeRound then convert to string without exponential
+      if (!isFinite(result)) {
+        state.operand = 'Error';
+      } else {
+        const rounded = safeRound(result);
+        // Use toString with removal of trailing zeros logic
+        state.operand = String(rounded);
+      }
+      state.value = 0;
+      state.operator = null;
+      state.waitingForOperand = true;
+      state.lastWasEquals = true;
+      // After equals, show formatted result in display (with thousands)
+      outputEl.textContent = formatNumberForDisplay(parseFloat(state.operand));
+      historyEl.textContent = '';
+    }
+  }
+
+  function toggleNeg(){
+    if (state.operand === '0' || state.operand === '0.') return;
+    if (state.operand === 'Error') { clearAll(); return; }
+    if (state.operand.startsWith('-')) state.operand = state.operand.slice(1);
+    else state.operand = '-' + state.operand;
+    refreshDisplay();
+  }
+
+  function percentOp(){
+    let val = parseFloat(state.operand || '0');
+    val = val / 100;
+    state.operand = String(safeRound(val));
+    refreshDisplay();
+  }
+
+  function backspace(){
+    if (state.lastWasEquals) { clearAll(); return; }
+    if (state.operand.length <= 1) state.operand = '0';
+    else state.operand = state.operand.slice(0, -1);
+    refreshDisplay();
+  }
+
+  // Event listeners for buttons
+  keys.forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const num = btn.dataset.num;
+      const op = btn.dataset.op;
+      const action = btn.dataset.action;
+
+      if (num !== undefined) { inputDigit(num); return; }
+      if (op !== undefined) { handleOperator(op); return; }
+      if (action) {
+        if (action === 'clear') clearAll();
+        else if (action === 'equals') doEquals();
+      }
+    });
+  });
+
+  // map data-action special keys
+  document.querySelectorAll('[data-action]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const a = btn.getAttribute('data-action');
+      if (a === 'clear') clearAll();
+      else if (a === 'equals') doEquals();
+    });
+  });
+
+  // Extra buttons mapped
+  document.querySelector('[data-action="neg"]')?.addEventListener('click', toggleNeg);
+  document.querySelector('[data-action="percent"]')?.addEventListener('click', percentOp);
+
+  // Keyboard support
+  window.addEventListener('keydown', (e)=>{
+    // allow numbers, dot, operators, enter, backspace, escape, percent
+    if (e.key >= '0' && e.key <= '9') { inputDigit(e.key); e.preventDefault(); return; }
+    if (e.key === '.') { inputDigit('.'); e.preventDefault(); return; }
+    if (['+','-','*','/'].includes(e.key)) { handleOperator(e.key); e.preventDefault(); return; }
+    if (e.key === 'Enter' || e.key === '=') { doEquals(); e.preventDefault(); return; }
+    if (e.key === 'Backspace') { backspace(); e.preventDefault(); return; }
+    if (e.key === 'Escape') { clearAll(); e.preventDefault(); return; }
+    if (e.key === '%') { percentOp(); e.preventDefault(); return; }
+  });
+
+  // Theme toggle (simple)
+  let dark = true;
+  themeToggle.addEventListener('click', ()=>{
+    dark = !dark;
+    if (!dark) {
+      document.documentElement.style.setProperty('--bg','#f6f8fb');
+      document.documentElement.style.setProperty('--accent1','#0ea5e9');
+      document.documentElement.style.setProperty('--accent2','#7c3aed');
+      document.body.style.color = '#0b1320';
+      themeToggle.setAttribute('aria-pressed','true');
+    } else {
+      // reload to reset styles to original (simple)
+      window.location.reload();
+    }
+  });
+
+  // initialize display
+  refreshDisplay();
+})();
+</script>
+</body>
+</html>
